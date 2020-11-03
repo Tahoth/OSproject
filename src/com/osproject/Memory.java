@@ -65,8 +65,7 @@ public class Memory {
     //Mark size ram slots as occupied from the start index
     public void claimRAM(int start, int size)
     {
-        for (int i=start;i<start+size;i++);
-        {
+        for (int i=start;i<start+size;i++) {
             usedram[i]=true;
         }
     }
