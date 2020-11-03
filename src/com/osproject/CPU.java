@@ -2,7 +2,7 @@ import javax.lang.model.util.ElementScanner6;
 
 public class CPU {
     String fetch(int programIndex) {
-        String return_instruct = "";	
+        String returnInstruct = "";	
         int page = getPage(programIndex);
         int offset = programIndex % 4;
         int cacheNumber = cacheAddress(page);
