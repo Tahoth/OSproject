@@ -32,7 +32,7 @@ public class Scheduler
                    mem.claimRAM(startIndex,programs[i].getTotalSize()); //Claim the space
                    mem.copyIntoRAM(startIndex,programs[i].memInfo.startAddress,programs[i].getTotalSize()); //Fill in the data
                    programs[i].setStatus(1); //Set status to ready
-                   programs[i].memInfo.startAddress=startIndex; //Set the program counter to point to new space in RAM
+                   programs[i].setProgramCounter(startIndex); //Set the program counter to point to new space in RAM
                    scheduledPrograms.add(programs[i]);
                 }
                 if(startIndex==-1) //Not enough space in RAM

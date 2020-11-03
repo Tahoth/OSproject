@@ -22,7 +22,8 @@ public class PCB {
         this.instructionCount = instructionCount;
         this.priority = priority;
         this.memInfo.startAddress = startAddress;
-        programCounter=0;
+        programCounter=startAddress;
+        status = 0;
     }
 
     public int getEndAddress() {
