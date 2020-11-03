@@ -21,30 +21,143 @@ public class CPU {
         return pageNum;
     }
 
-   int cacheAddress(int pageNum)
+   int cacheAddress(int page)
    {
-        return pageNum;
+		int cacheNum = 0; 
+		page = page +PCB2.getInput();
+		if(page >= PCB2.getInput() && page < PCB2.getInput())
+		{
+			cacheNum = 0;
+		}
+		else if(page >=PCB2.getInput() && page < PCB2.getOutput())
+		{
+			cacheNum = 1;
+		}
+		else if(pagae >= PCB2.getOutput() && page < PCB2.getTemp())
+		{
+			cacheNum = 2;
+		}
+		else{
+			cacheNum = 3;
+		}
+	
+		return cacheNum;
    }
 
-   boolean checkCache(int pageNum) 
+   boolean checkCache(int page) 
    {
        boolean cache = false; 
        int cacheNum = cacheAddress(page);
-       if(cachePage(cacheNum)== page)
+       if(cachePage(cacheNum) == page)
        {
            cache = true;
        }
-       else{
+       if(PCB2.inCache(page)){
            cache = false;
        }
        if(!cache){
-           cache = true;
+           if(!PCB2.getValid(page)){
+			   pageFault = true; 
+			   PCB2.setFault(pageFault);
+			   PCB2.set(page);
+		   }
        }
 
        return cache; 
    }
 
-   //base 10 to hex
+   void cachePageCopy()
+   {
+	   for(int i = 0; i <4; i++)
+	   {
+		   string cacheCopy = PCB2.getCacheCopy(i);
+		   for(int k = 0; k <4; k++)
+		   {
+			   cache[i][k] = cacheCopy[j];
+		   }
+	   }
+   }
+
+   void setRegCopy()
+   {
+	   for(int i = 9; i < 16; i++)
+	   {
+		   cpuReg[i] = PCB2.getCopy(i);
+	   }
+   }
+
+   void setCacheCopy() {
+	int cachePageCopy = PCB2.setCacheCopy();
+	for (int i = 0; i < 4; i++)
+	 {
+		cachePageCopy[i] = cachePageCopy[i];
+	}
+
+
+   void decodeExecute()
+   {
+	   pageFault = false;
+	   temp = stat.procPunchIn();
+	   int nextInstruction = PCB2.programCounter();
+	   int currentPage = getPage(nextInstruction);
+	   String instruct = "";
+	   boolean proceed = false;
+	   boolean inCache = checkCache(currentPage);
+	   if (inCache){
+		   instruct = fetch(nextInstruction);
+		   String binary = hexToBinary(instruct);
+		   int type = binaryToBase(binary.substring(0,2));
+		   instructionType = type;
+		   String operation = binary.substring(2, 6);
+		   opcode = operation;
+		   if (type == 0)
+		   {
+			   //arithmetic: 2bits = indicator, 6bits = opcode, 4bits = S-reg1,  4bits = s-reg2, 4bits = d-reg, 12bits = not used(000000)
+			   binInstrictions[0] = binary.substring(8, 4);
+			   binInstrictions[1] = binary.substring(12, 4);
+			   binInstrictions[2] = binary.substring(16, 4);
+		   }
+		   else if (type == 1)
+		   {
+			   //Conditional branch and Immediate: 2bits = indicator, 6bits = opcode, 4bits = b-reg1,  4bits = d-reg2, 16bits = address)
+			   binInstrictions[0] = binary.substring(8, 4);
+			   binInstrictions[1] = binary.substring(12, 4);
+			   binInstrictions[2] = binary.substring(16, 16);
+		   }
+		   else if (type  == 2)
+		   {
+			   //unconditional jump: 2bits = indicator, 6bits = opcode, 24bits = address)
+			   binInstrictions[0] = binary.substring(8, 24);
+		   }
+		   else if (type == 3)
+		   {
+			   //Input/output: 2bits = indicator, 6bits = opcode, 4bits = reg1,  4bits = reg2, 16bits = address)
+			   binInstrictions[0] = binary.substring(8, 4);
+			   binInstrictions[1] = binary.substring(12, 4);
+			   binInstrictions[2] = binary.substring(16, 16);
+		   }
+		   else {
+			   System.out.println( "incorrect binary string");
+		   }
+		   execute();
+	   }
+	   stat.incCpuCycles(PCB2.getProcessID());
+	   if (pageFault) {
+		   stat.incPageFaults(PCB2->getProcessID());
+		   PCB2.Running(false);
+		   PCB2.cacheCopy(cache);
+		   PCB2.regCopy(cpuReg);
+		   PCB2.cachePageCopy(cachePage);
+		   clearCache();
+	   }
+	   
+   }
+
+
+
+
+
+   //conversions 
 
    String baseToHex(int decimal)
    {
