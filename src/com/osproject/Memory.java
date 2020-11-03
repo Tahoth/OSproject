@@ -72,7 +72,7 @@ public class Memory {
     }
 
     //Reset a space in RAM when program is finished
-    public void cearRAM(int start, int size)
+    public void clearRAM(int start, int size)
     {
         for (int i=start;i<start+size;i++)
         {
