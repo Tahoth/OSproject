@@ -77,7 +77,7 @@ public class Memory {
         for (int i=start;i<start+size;i++)
         {
             usedram[i]=false;
-            memory[i]=0;
+            //memory[i]=0;
         }
     }
     //Copys a size of disc into ram
