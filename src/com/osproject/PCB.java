@@ -2,6 +2,7 @@ package com.osproject;
 
 class MemInfo {
     public int startAddress;
+    public int startOnDisk;
     public int endAddress;
     public int ramStart;
 }
@@ -25,6 +26,7 @@ public class PCB {
         this.instructionCount = instructionCount;
         this.priority = priority;
         this.memInfo.startAddress = startAddress;
+        this.memInfo.startOnDisk = startAddress;
         programCounter=startAddress;
         status = 0;
         mets.setWaitStart();
