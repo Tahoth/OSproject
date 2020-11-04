@@ -16,7 +16,7 @@ public class Driver {
         loader.load("datafile.txt", readyQ);
 
         Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, true);
-        Dispatcher dispatcher = new Dispatcher(cpu, scheduler);
+        Dispatcher dispatcher = new Dispatcher(cpu, readyQ, scheduler);
 
         scheduler.schedulePrograms();
 
