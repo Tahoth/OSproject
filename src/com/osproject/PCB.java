@@ -15,6 +15,7 @@ public class PCB {
     private int status; // 0 loaded, 1 waiting (in ram), 2 running, 4 complete, 5 dataoutput
     private int programCounter;
     public MemInfo memInfo = new MemInfo();
+    public Metrics mets = new Metrics();
 
 
     public PCB(int pid, int instructionCount, int priority, int startAddress) {
@@ -24,6 +25,7 @@ public class PCB {
         this.memInfo.startAddress = startAddress;
         programCounter=startAddress;
         status = 0;
+        mets.setWaitStart();
     }
 
     public int getEndAddress() {
