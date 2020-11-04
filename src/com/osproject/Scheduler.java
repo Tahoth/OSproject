@@ -62,6 +62,7 @@ public class Scheduler
                         programs.get(i).memInfo.startAddress=startIndex;//Set the program counter to point to new space in RAM
                         scheduledPrograms.add(programs.get(i));
                         programs.remove(i); //Remove the program from the ready queue
+                        i--;
                     }
                     if (startIndex == -1) //Not enough space in RAM
                     {
