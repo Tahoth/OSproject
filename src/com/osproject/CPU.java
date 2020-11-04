@@ -192,6 +192,7 @@ public class CPU {
                 // HLT: Logical end of program.
                 // When we hit this need to update PCB to halted status
                 process.setStatus(4);
+                running=false;
                 break;
             case 0x13:
                 // NOP: Does nothing, moves to next instruction.

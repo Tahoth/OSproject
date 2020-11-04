@@ -81,12 +81,21 @@ public class Memory {
         }
     }
     //Copys a size of disc into ram
-    public void copyIntoRAM(int ramStart, int discStart, int size)
+    public void copyIntoRAM(int ramStart, int diskStart, int size)
     {
         //Assign data from disc to RAM
         for(int i=0;i<size;i++)
         {
-            memory[ramStart+i]=disk[discStart+i];
+            memory[ramStart+i]=disk[diskStart+i];
+        }
+    }
+    //Copys a size of ram into disc
+    public void copyFromRAM(int ramStart, int diskStart, int size)
+    {
+        //Assign data from disc to RAM
+        for(int i=0;i<size;i++)
+        {
+            disk[diskStart+i]=memory[ramStart+i];
         }
     }
 

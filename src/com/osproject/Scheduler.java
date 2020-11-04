@@ -31,6 +31,7 @@ public class Scheduler
 
                 //Set the program to data output, and then free the memory
                 runningQ.get(i).setStatus(5);
+                mem.copyFromRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).memInfo.startOnDisk,runningQ.get(i).getTotalSize());
                 mem.clearRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).getTotalSize());
                 completedQ.add(runningQ.remove(i));
                 //Sets flag that space has opened, to schedule more.
