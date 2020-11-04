@@ -168,18 +168,7 @@ static int getBits(int value, int start, int length)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-   //base 10 to hex
+   //conversions 
 
    String baseToHex(int decimal)
    {
