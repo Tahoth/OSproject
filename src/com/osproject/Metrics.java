@@ -13,7 +13,7 @@ public class Metrics {
 
     public void setJobStart()
     {
-        jobStartStart = System.currentTimeMillis();
+        jobStart = System.currentTimeMillis();
     }
 
     public void setJobFinish()

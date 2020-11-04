@@ -1,355 +1,252 @@
 package com.osproject;
-import javax.lang.model.util.ElementScanner6;
-import java.lang.Math;
 
 public class CPU {
-    String fetch(int programIndex) {
-        String returnInstruct = "";	
-        int page = getPage(programIndex);
-        int offset = programIndex % 4;
-        int cacheNumber = cacheAddress(page);
-        boolean inCache = checkCache(page);
-        //if (in_cache) {
-                //String address = cache[cache_number][offset];
-                return "";
-        //}
-        //fetch something, 
-        //data, fetch data from sections, gets data, executes the data.
+    private Memory memory;
+    private int pc;
+    private int opcode;
+    private int[] registers;
+    private int[] args;
+    private PCB process;
+
+    public CPU(Memory memory) {
+        this.memory = memory;
+        this.pc = 0;
+        this.registers = new int[16];
+        this.args = new int[3];
     }
 
-    int getPage(int pageNum)
-    {
-        int page = pageNum % 4;
-        return pageNum;
+    public void assignProcess(PCB p) {
+        process = p;
     }
 
-   int cacheAddress(int page)
-   {
-		int cacheNum = 0; 
-		page = page +PCB2.getInput();
-		if(page >= PCB2.getInput() && page < PCB2.getInput())
-		{
-			cacheNum = 0;
-		}
-		else if(page >=PCB2.getInput() && page < PCB2.getOutput())
-		{
-			cacheNum = 1;
-		}
-		else if(pagae >= PCB2.getOutput() && page < PCB2.getTemp())
-		{
-			cacheNum = 2;
-		}
-		else{
-			cacheNum = 3;
-		}
-	
-		return cacheNum;
-   }
-
-   boolean checkCache(int page) 
-   {
-       boolean cache = false; 
-       int cacheNum = cacheAddress(page);
-       if(cachePage(cacheNum) == page)
-       {
-           cache = true;
-       }
-       if(PCB2.inCache(page)){
-           cache = false;
-       }
-       if(!cache){
-           if(!PCB2.getValid(page)){
-			   pageFault = true; 
-			   PCB2.setFault(pageFault);
-			   PCB2.set(page);
-		   }
-       }
-
-       return cache; 
-   }
-
-   void cachePageCopy()
-   {
-	   for(int i = 0; i <4; i++)
-	   {
-		   string cacheCopy = PCB2.getCacheCopy(i);
-		   for(int k = 0; k <4; k++)
-		   {
-			   cache[i][k] = cacheCopy[j];
-		   }
-	   }
-   }
-
-   void setRegCopy()
-   {
-	   for(int i = 9; i < 16; i++)
-	   {
-		   cpuReg[i] = PCB2.getCopy(i);
-	   }
-   }
-
-   void setCacheCopy() {
-	int cachePageCopy = PCB2.setCacheCopy();
-	for (int i = 0; i < 4; i++)
-	 {
-		cachePageCopy[i] = cachePageCopy[i];
-	}
-
-static int getBits(int value, int start, int length)
-   {
-        int temp = value >>> (32-length-(start-1));
-        temp = temp%(int)(Math.pow(2,length+1));
-        return temp;
+    private int getEffectiveAddress(int address) {
+        address = address / 4;
+        return process.memInfo.startAddress + address;
     }
 
+    private int fetch() {
+        return memory.retrieveRam(pc);
+    }
 
-   void decodeExecute()
-   {
-	   pageFault = false;
-	   temp = stat.procPunchIn();
-	   int[] instruction = new int[3];
-	   int nextInstruction = PCB2.programCounter();
-	   int currentPage = getPage(nextInstruction);
-	   String instruct = "";
-	   boolean proceed = false;
-	   boolean inCache = checkCache(currentPage);
-	   if (inCache){
-		   instruct = fetch(nextInstruction);
-		   String binary = "";
-		   String operation = binary;
-		   opcode = op;
-		   if (type == 0)
-		   {
-			  //arithmetic
-			  //6 bits = opcode 
-			  //4bits = s-reg 4 bits = s-reg
-			  //4 bits = d-reg
-			  //12 bits = not used 0000
-			   instruction[0] = getBits(8, 4, 32);
-			   instruction[1] = getBits(12, 4, 32);
-			   instruction[2] = getBits(16, 4, 32);
-		   }
-		   else if (type == 1)
-		   {
-			   //conditional and immediate 
-			   instruction[0] = getBits(8, 4, 32);
-			   instruction[1] = getBits(12, 4, 32);
-			   instruction[2] = getBits(16, 16, 32);
-		   }
-		   else if (type  == 2)
-		   {
-			//unconditional 24 bits = address
-			   instruction[0] = getBits(8, 24, 32);
-		   }
-		   else if (type == 3)
-		   {
-			   //I/O 2 bits = indicator 
-			   //6 bits = opcode 
-			   //4 bits = reg 4 bits = reg 
-			   //16 bits = address 
-			   instruction[0] = getBits(8, 4, 32);
-			   instruction[1] = getBits(8, 4, 32);
-			   instruction[2] = getBits(8, 4, 32);
-		   }
-		   else {
-			   System.out.println("Incorrect binary string");
-		   }
-		   execute();
-	   }
-	   stat.incCpuCycles(PCB2.getProcessID());
-	   if (pageFault) {
-		   stat.incPageFaults(PCB2->getProcessID());
-		   PCB2.Running(false);
-		   PCB2.cacheCopy(cache);
-		   PCB2.regCopy(cpuReg);
-		   PCB2.cachePageCopy(cachePage);
-		   clearCache();
-	   }
-	   
-   }
+    private void decode() {
+        int instruction = fetch();
+        int formatID = (instruction & 0xc0000000) >>> 30;
+        opcode = (instruction & 0x3f000000) >>> 24;
 
+        String output = String.format("Instruction: %08x\tId: %d\tOpcode: %x", instruction, formatID, opcode);
+        System.out.println(output);
 
+        int dest;
+        String output2;
+        int addr = (instruction & 0x0000FFFF);
+        switch (formatID) {
+            case 0:
+                int source1 = (instruction & 0x00F00000) >>> 20;
+                int source2 = (instruction & 0x000F0000) >>> 16;
+                dest    = (instruction & 0x0000F000) >>> 12;
+                args[0] = source1;
+                args[1] = source2;
+                args[2] = dest;
+                output2 = String.format("Src1: %x\t Src2: %x\t Dest: %x", source1, source2, dest);
+                System.out.println(output2);
+                break;
+            case 1:
+                int base = (instruction & 0x00F00000) >>> 20;
+                dest = (instruction & 0x000F0000) >>> 16;
+                args[0] = base;
+                args[1] = dest;
+                args[2] = addr;
+                output2 = String.format("Base: %x\t Dest: %x\t Addr: %x", base, dest, addr);
+                System.out.println(output2);
+                break;
+            case 2:
+                int jumpAddr = (instruction & 0x00FFFFFF);
+                args[2] = jumpAddr;
+                output2 = String.format("JmpAddr: %x", jumpAddr);
+                System.out.println(output2);
+                break;
+            case 3:
+                int reg1 = (instruction & 0x00F00000) >>> 20;
+                int reg2 = (instruction & 0x000F0000) >>> 16;
+                args[0] = reg1;
+                args[1] = reg2;
+                args[2] = addr;
+                output2 = String.format("Reg1: %x\tReg2: %x\tAddr: %x", reg1, reg2, addr);
+                System.out.println(output2);
+                break;
+            default:
+                System.out.println("Unknown format code...");
+        }
+    }
 
-   //conversions 
+    public void execute() {
+        decode();
+        pc++;
+        switch (opcode) {
+            case 0x0:
+                // RD: Read content of I/P buffer into an accumulator or register.
+                if (args[1] == 0) {
+                    registers[args[0]] = memory.retrieveRam(getEffectiveAddress(args[2]));
+                } else {
+                    registers[args[0]] = memory.retrieveRam(getEffectiveAddress(registers[args[1]]));
+                }
+                break;
+            case 0x1:
+                // WR: Write content of accumulator into O/P buffer.
+                if (args[1] == 0) {
+                    memory.storeRam(getEffectiveAddress(args[2]), registers[args[0]]);
+                } else {
+                    memory.storeRam(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                }
+                break;
+            case 0x2:
+                // ST: Store content of a register into an address.
+                if (args[1] == 0) {
+                    memory.storeRam(getEffectiveAddress(registers[args[0]] + args[2]), registers[args[1]]);
+                } else {
+                    memory.storeRam(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                }
+                break;
+            case 0x3:
+                // LW: Load content of address into register.
+                registers[args[1]] = memory.retrieveRam(getEffectiveAddress(registers[args[0]] + args[2]));
+                break;
+            case 0x4:
+                // MOV: Transfer content of one register into another.
+                registers[args[0]] = registers[args[1]];
+                break;
+            case 0x5:
+                // ADD: Add content of two S-reg into D-reg.
+                registers[args[2]] = registers[args[0]] + registers[args[1]];
+                break;
+            case 0x6:
+                // SUB: Subtracts content of two S-regs into D-reg.
+                registers[args[2]] = registers[args[0]] - registers[args[1]];
+                break;
+            case 0x7:
+                // MUL: Multiplies content of two S-regs into D-reg.
+                registers[args[2]] = registers[args[0]] * registers[args[1]];
+                break;
+            case 0x8:
+                // DIV: Divides content of two S-regs into D-reg.
+                registers[args[2]] = registers[args[0]] / registers[args[1]];
+                break;
+            case 0x9:
+                // AND: Logical AND of two S-regs into D-reg.
+                registers[args[2]] = registers[args[0]] & registers[args[1]];
+                break;
+            case 0xA:
+                // OR: Logical OR of two S-regs into D-reg.
+                registers[args[2]] = registers[args[0]] | registers[args[1]];
+                break;
+            case 0xB:
+                // MOVI: Transfers address/data directly into a register.
+                if (args[0] == 0) {
+                    registers[args[1]] = args[2];
+                } else {
+                    registers[args[1]] = registers[args[0]] + args[2];
+                }
+                break;
+            case 0xC:
+                // ADDI: Add a data value directly to the content of a register.
+                registers[args[1]] += args[2];
+                break;
+            case 0xD:
+                // MULI: Multiples a data value directly with the content of a register.
+                registers[args[1]] *= args[2];
+                break;
+            case 0xE:
+                // DIVI: Divides a data value directly into the content of a register.
+                registers[args[1]] /= args[2];
+                break;
+            case 0xF:
+                // LDI: Load data/address directly to the content of a register.
+                registers[args[1]] = args[2];
+                break;
+            case 0x10:
+                // SLT: Sets the D-reg to 1 if first S-reg is less than B-reg; 0 otherwise.
+                if (registers[args[0]] < registers[args[1]]) {
+                    registers[args[2]] = 1;
+                } else {
+                    registers[args[2]] = 0;
+                }
+                break;
+            case 0x11:
+                // SLTI: Sets the D-reg to 1 if first S-reg is less than a data; 0 otherwise.
+                if (registers[args[0]] < args[1]) {
+                    registers[args[2]] = 1;
+                } else {
+                    registers[args[2]] = 0;
+                }
+                break;
+            case 0x12:
+                // HLT: Logical end of program.
+                // When we hit this need to update PCB to halted status
+                break;
+            case 0x13:
+                // NOP: Does nothing, moves to next instruction.
+                break;
+            case 0x14:
+                // JMP: Jumps to a specified location.
+                // TODO: Calculate effective address properly.
+                pc = getEffectiveAddress(args[2]);
+                break;
+            case 0x15:
+                // BEQ: Branches to an address when content of B-reg == D-reg.
+                if (registers[args[0]] == registers[args[1]]) {
+                    // TODO: effective address
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            case 0x16:
+                // BNE: Branch to an address when content of B-reg != D-reg.
+                if (registers[args[0]] != registers[args[1]]) {
+                    // TODO: Calculate effective address properly.
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            case 0x17:
+                // BEZ: Branch to an address when content of B-reg == 0.
+                if (registers[args[0]] == 0) {
+                    // TODO: effective address
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            case 0x18:
+                // BNZ: Branch to an address when content of B-reg != 0.
+                if (registers[args[0]] != 0) {
+                    // TODO: effective address
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            case 0x19:
+                // BGZ: Branch to an address when content of B-reg > 0.
+                if (registers[args[0]] > 0) {
+                    // TODO: effective address
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            case 0x1A:
+                // BLZ: Branch to an address when content of B-reg < 0.
+                if (registers[args[0]] < 0) {
+                    // TODO: effective address
+                    pc = getEffectiveAddress(args[2]);
+                }
+                break;
+            default:
+                throw new Error("Unknown opcode!");
+        }
+        printRegs();
+    }
 
-   String baseToHex(int decimal)
-   {
-    String hex = ""; 
-    String finalTemp = "";
-	int quotient;
-    int i=0;
-    int j = 0; 
-    int temp = 0; 
-    int k = 0; 
-	int[] hexadecimalNumber = new int [100];
-	quotient = decimal;
+    private void printRegs() {
+        for (int i = 0; i < registers.length; i++) {
+            System.out.print("reg"+i+": " + registers[i] + "\t");
+        }
+        System.out.println();
+    }
 
-	while(quotient!=0)
-	{
-		temp = quotient % 16;
-
-      //To convert integer into character
-		if( temp < 10)
-			temp =temp + 48;
-		else
-			temp = temp + 55;
-			
-		hexadecimalNumber[++i]= temp;
-		quotient = quotient % 16;
-	}
-
-    for(j = i -1 ;j>= 0;j--){
-		hex += hexadecimalNumber[j];
-	}
-	for(k = 0; k<(8-hex.length()); k++){
-		finalTemp += "0";
-	}
-	finalTemp+=hex;
-    hex=finalTemp;
-    
-	return hex;
-   }
-
-
-
-   int baseToBinary(int number)
-{
-	int binaryArray[] = new int[100]; //array
-	int index = 0; //index
-	while(number >0)
-	{
-		binaryArray[index++] = number%2; //division for binary
-		number = number/2; //divide final
-	}
-	return number; 
-}
-
-int binaryToBase(int binaryNum)
-{
-	int decimal =0; 
-	int temp=0;
-	int power = 0;
-
-
-	while(true)
-	{
-		if(binaryNum == 0) //stp[]
-		{
-			break;
-		} 
-		else
-		{
-			temp = binaryNum%10; //convert
-			decimal += temp*Math.pow(2, power); //use power
-			binaryNum = binaryNum/10; //divide
-			power++; //go up
-		}
-	}
-	return decimal; //return decimal
-	
-}
-
-int hexToBase(String hex)
-{
-	String hexaString = "0123456789ABCDEF";
-	hex = hex.toUpperCase();
-	int number = 0;
-	for(int i = 0; i < hex.length(); i++)
-	{
-		char charNum = hex.charAt(i);
-		int temp = hexaString.indexOf(charNum);
-		number = 16*number + temp;
-	}
-	return number;
-}
-
-int hexToBinary(char hexArray[])
-{
-	
-	int i = 0;
-	while (hexArray[i] != '\u0000')
-	{
-		switch (hexArray[i])
-		{
-				case '0': 
-					System.out.println("0000"); 
-					break; 
-				case '1': 
-					System.out.println("0001"); 
-					break; 
-				case '2': 
-					System.out.println("0010"); 
-					break; 
-				case '3': 
-					System.out.println("0011"); 
-					break; 
-				case '4': 
-					System.out.println("0100"); 
-					break; 
-				case '5': 
-					System.out.println("0101"); 
-					break; 
-				case '6': 
-					System.out.println("0110"); 
-					break; 
-				case '7': 
-					System.out.println("0111"); 
-					break; 
-				case '8': 
-					System.out.println("1000"); 
-					break; 
-				case '9': 
-					System.out.println("1001"); 
-					break; 
-
-				case 'A': 
-				case 'a': 
-					System.out.println("1010"); 
-					break; 
-					
-				case 'B': 
-				case 'b': 
-                System.out.print("1011"); 
-				break; 
-				
-           	    case 'C': 
-                case 'c': 
-                System.out.print("1100"); 
-                break; 
-                case 'D': 
-                case 'd': 
-                System.out.print("1101"); 
-                break; 
-                case 'E': 
-                case 'e': 
-                System.out.print("1110"); 
-                break; 
-                case 'F': 
-                case 'f': 
-                System.out.print("1111"); 
-                break; 
-            default: 
-                System.out.print("\nThis is invalid"); 
-            } 
-            i++; 
-        } 
-	return i;
-}
-
-
-
-String binaryToHex(String number)
-{
-	String hexaNum = "";
-	char[] hex = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-	'b', 'c', 'd', 'e', 'f' };
-	if (number != null && !number.isEmpty()) {
-	String decimal = binaryToBase(number);
-	while (decimal > 0) {
-	hexaNum = hexNum[decimal % 16] + hexaNum;
-	decimal /= 16;
-	
-	
-	return hexaNUm;
-	
+    public void setPc(int val) {
+        pc = val;
+    }
 }

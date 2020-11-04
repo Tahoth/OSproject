@@ -24,6 +24,7 @@ public class Scheduler
 
     public void checkForCompletion()
     {
+        boolean processComplete = false;
         for (int i = 0; i < runningQ.size(); i++){
             if(runningQ.get(i).getStatus()==4){ //If program is completed
                 //TODO: the stuff to print the metrics
@@ -32,7 +33,13 @@ public class Scheduler
                 runningQ.get(i).setStatus(5);
                 mem.claimRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).getTotalSize());
                 completedQ.add(runningQ.remove(i));
+                //Sets flag that space has opened, to schedule more.
+                processComplete=true;
             }
+        }
+        if(processComplete)
+        {
+            schedulePrograms();
         }
     }
     public void schedulePrograms()
