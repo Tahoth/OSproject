@@ -42,8 +42,8 @@ public class CPU {
         int formatID = (instruction & 0xc0000000) >>> 30;
         opcode = (instruction & 0x3f000000) >>> 24;
 
-        String output = String.format("Instruction: %08x\tId: %d\tOpcode: %x", instruction, formatID, opcode);
-        System.out.println(output);
+//        String output = String.format("Instruction: %08x\tId: %d\tOpcode: %x", instruction, formatID, opcode);
+//        System.out.println(output);
 
         int dest;
         String output2;
@@ -57,7 +57,7 @@ public class CPU {
                 args[1] = source2;
                 args[2] = dest;
                 output2 = String.format("Src1: %x\t Src2: %x\t Dest: %x", source1, source2, dest);
-                System.out.println(output2);
+//                System.out.println(output2);
                 break;
             case 1:
                 int base = (instruction & 0x00F00000) >>> 20;
@@ -66,13 +66,13 @@ public class CPU {
                 args[1] = dest;
                 args[2] = addr;
                 output2 = String.format("Base: %x\t Dest: %x\t Addr: %x", base, dest, addr);
-                System.out.println(output2);
+//                System.out.println(output2);
                 break;
             case 2:
                 int jumpAddr = (instruction & 0x00FFFFFF);
                 args[2] = jumpAddr;
                 output2 = String.format("JmpAddr: %x", jumpAddr);
-                System.out.println(output2);
+//                System.out.println(output2);
                 break;
             case 3:
                 int reg1 = (instruction & 0x00F00000) >>> 20;
@@ -81,16 +81,16 @@ public class CPU {
                 args[1] = reg2;
                 args[2] = addr;
                 output2 = String.format("Reg1: %x\tReg2: %x\tAddr: %x", reg1, reg2, addr);
-                System.out.println(output2);
+//                System.out.println(output2);
                 break;
             default:
-                System.out.println("Unknown format code...");
+//                System.out.println("Unknown format code...");
         }
     }
 
     public void execute() {
-        System.out.println("Current PID: " + process.getPid());
-        System.out.println("It's priority: " + process.getPriority());
+//        System.out.println("Current PID: " + process.getPid());
+//        System.out.println("It's priority: " + process.getPriority());
         decode();
         pc++;
         switch (opcode) {
@@ -250,7 +250,7 @@ public class CPU {
             default:
                 throw new Error("Unknown opcode!");
         }
-        printRegs();
+//        printRegs();
         updatePCB();
     }
 
