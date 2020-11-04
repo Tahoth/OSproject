@@ -93,8 +93,8 @@ public class CPU {
 		cachePageCopy[i] = cachePageCopy[i];
 	}
 
-	static int getBits(int value, int start, int length)
-    {
+static int getBits(int value, int start, int length)
+   {
         int temp = value >>> (32-length-(start-1));
         temp = temp%(int)(Math.pow(2,length+1));
         return temp;
