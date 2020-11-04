@@ -41,15 +41,16 @@ public class Driver {
         do {
             scheduler.checkForCompletion();
             dispatcher.dispatch();
-            cpu.execute();
-
 //            c = in.nextLine().charAt(0);
 //        } while (c != 'n');
         } while (completedQ.size() != 30);
 
+        System.out.println("Process Running Waiting");
         for (int i = 0; i < completedQ.size(); i++) {
             PCB b = completedQ.get(i);
-            System.out.println("Process " + b.getPid() + " ran for: " + (b.mets.jobFinish - b.mets.jobStart) + "ms");
+            String line = String.format("%7d %7d %7d", b.getPid(), (b.mets.jobFinish - b.mets.jobStart),
+                    (b.mets.jobStart - b.mets.waitStart));
+            System.out.println(line);
         }
 
         try {
