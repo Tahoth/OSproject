@@ -4,7 +4,8 @@ public class Metrics {
     long waitStart;
     long jobStart;
     long jobFinish;
-    int inouts;
+    int inouts =0;
+    int assignedCPU;
 
     public void setWaitStart()
     {

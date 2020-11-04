@@ -12,12 +12,14 @@ public class Driver {
         ArrayList<PCB> runningQ = new ArrayList<>();
         Memory memory = new Memory();
         Loader loader = new Loader(memory);
+        ArrayList<CPU> CPUlist= new ArrayList<>();
         CPU cpu = new CPU(memory);
+        CPUlist.add(cpu);
 
         loader.load("datafile.txt", readyQ);
 
         Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, true);
-        Dispatcher dispatcher = new Dispatcher(cpu, runningQ, scheduler);
+        Dispatcher dispatcher = new Dispatcher(CPUlist, runningQ, scheduler);
 
         scheduler.schedulePrograms();
 

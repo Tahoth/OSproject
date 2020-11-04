@@ -194,6 +194,7 @@ public class CPU {
                 // HLT: Logical end of program.
                 // When we hit this need to update PCB to halted status
                 process.setStatus(4);
+                process.mets.setJobFinish();
                 running=false;
                 break;
             case 0x13:
