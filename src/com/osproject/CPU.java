@@ -105,40 +105,9 @@ public class CPU {
 	   boolean inCache = checkCache(currentPage);
 	   if (inCache){
 		   instruct = fetch(nextInstruction);
-		   String binary = hexToBinary(instruct);
-		   int type = binaryToBase(binary.substring(0,2));
+		   String binary = 0;
 		   instructionType = type;
-		   String operation = binary.substring(2, 6);
 		   opcode = operation;
-		   if (type == 0)
-		   {
-			   //arithmetic: 2bits = indicator, 6bits = opcode, 4bits = S-reg1,  4bits = s-reg2, 4bits = d-reg, 12bits = not used(000000)
-			   binInstrictions[0] = binary.substring(8, 4);
-			   binInstrictions[1] = binary.substring(12, 4);
-			   binInstrictions[2] = binary.substring(16, 4);
-		   }
-		   else if (type == 1)
-		   {
-			   //Conditional branch and Immediate: 2bits = indicator, 6bits = opcode, 4bits = b-reg1,  4bits = d-reg2, 16bits = address)
-			   binInstrictions[0] = binary.substring(8, 4);
-			   binInstrictions[1] = binary.substring(12, 4);
-			   binInstrictions[2] = binary.substring(16, 16);
-		   }
-		   else if (type  == 2)
-		   {
-			   //unconditional jump: 2bits = indicator, 6bits = opcode, 24bits = address)
-			   binInstrictions[0] = binary.substring(8, 24);
-		   }
-		   else if (type == 3)
-		   {
-			   //Input/output: 2bits = indicator, 6bits = opcode, 4bits = reg1,  4bits = reg2, 16bits = address)
-			   binInstrictions[0] = binary.substring(8, 4);
-			   binInstrictions[1] = binary.substring(12, 4);
-			   binInstrictions[2] = binary.substring(16, 16);
-		   }
-		   else {
-			   System.out.println( "incorrect binary string");
-		   }
 		   execute();
 	   }
 	   stat.incCpuCycles(PCB2.getProcessID());
