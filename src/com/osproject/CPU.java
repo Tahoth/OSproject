@@ -3,7 +3,7 @@ import javax.lang.model.util.ElementScanner6;
 
 public class CPU {
     String fetch(int programIndex) {
-        String return_instruct = "";	
+        String returnInstruct = "";	
         int page = getPage(programIndex);
         int offset = programIndex % 4;
         int cacheNumber = cacheAddress(page);
@@ -22,30 +22,112 @@ public class CPU {
         return pageNum;
     }
 
-   int cacheAddress(int pageNum)
+   int cacheAddress(int page)
    {
-        return pageNum;
+		int cacheNum = 0; 
+		page = page +PCB2.getInput();
+		if(page >= PCB2.getInput() && page < PCB2.getInput())
+		{
+			cacheNum = 0;
+		}
+		else if(page >=PCB2.getInput() && page < PCB2.getOutput())
+		{
+			cacheNum = 1;
+		}
+		else if(pagae >= PCB2.getOutput() && page < PCB2.getTemp())
+		{
+			cacheNum = 2;
+		}
+		else{
+			cacheNum = 3;
+		}
+	
+		return cacheNum;
    }
 
-   boolean checkCache(int pageNum) 
+   boolean checkCache(int page) 
    {
        boolean cache = false; 
        int cacheNum = cacheAddress(page);
-       if(cachePage(cacheNum)== page)
+       if(cachePage(cacheNum) == page)
        {
            cache = true;
        }
-       else{
+       if(PCB2.inCache(page)){
            cache = false;
        }
        if(!cache){
-           cache = true;
+           if(!PCB2.getValid(page)){
+			   pageFault = true; 
+			   PCB2.setFault(pageFault);
+			   PCB2.set(page);
+		   }
        }
 
        return cache; 
    }
 
-   //base 10 to hex
+   void cachePageCopy()
+   {
+	   for(int i = 0; i <4; i++)
+	   {
+		   string cacheCopy = PCB2.getCacheCopy(i);
+		   for(int k = 0; k <4; k++)
+		   {
+			   cache[i][k] = cacheCopy[j];
+		   }
+	   }
+   }
+
+   void setRegCopy()
+   {
+	   for(int i = 9; i < 16; i++)
+	   {
+		   cpuReg[i] = PCB2.getCopy(i);
+	   }
+   }
+
+   void setCacheCopy() {
+	int cachePageCopy = PCB2.setCacheCopy();
+	for (int i = 0; i < 4; i++)
+	 {
+		cachePageCopy[i] = cachePageCopy[i];
+	}
+
+
+   void decodeExecute()
+   {
+	   pageFault = false;
+	   temp = stat.procPunchIn();
+	   int nextInstruction = PCB2.programCounter();
+	   int currentPage = getPage(nextInstruction);
+	   String instruct = "";
+	   boolean proceed = false;
+	   boolean inCache = checkCache(currentPage);
+	   if (inCache){
+		   instruct = fetch(nextInstruction);
+		   String binary = 0;
+		   instructionType = type;
+		   opcode = operation;
+		   execute();
+	   }
+	   stat.incCpuCycles(PCB2.getProcessID());
+	   if (pageFault) {
+		   stat.incPageFaults(PCB2->getProcessID());
+		   PCB2.Running(false);
+		   PCB2.cacheCopy(cache);
+		   PCB2.regCopy(cpuReg);
+		   PCB2.cachePageCopy(cachePage);
+		   clearCache();
+	   }
+	   
+   }
+
+
+
+
+
+   //conversions 
 
    String baseToHex(int decimal)
    {
