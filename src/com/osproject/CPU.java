@@ -90,6 +90,7 @@ public class CPU {
 
     public void execute() {
         System.out.println("Current PID: " + process.getPid());
+        System.out.println("It's priority: " + process.getPriority());
         decode();
         pc++;
         switch (opcode) {

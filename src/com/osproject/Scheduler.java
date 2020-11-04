@@ -88,6 +88,10 @@ public class Scheduler
                         }
                     }
                 }
+
+                if (programIndex == -1) {
+                    return;
+                }
               //Check available space in RAM
               startIndex= mem.findNextSpotInRAM(programs.get(programIndex).getTotalSize());
               if (startIndex != -1) { //Space is available

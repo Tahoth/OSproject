@@ -35,9 +35,11 @@ public class Driver {
             dispatcher.dispatch();
             cpu.execute();
 
-            c = in.nextLine().charAt(0);
-        } while (c != 'n');
+//            c = in.nextLine().charAt(0);
+//        } while (c != 'n');
+        } while (completedQ.size() != 30);
 
+        // Test ram dump
         for (int i = 0; i < 1024; i++) {
             String output = String.format("%08x: %08x", i, memory.retrieveRam(i));
             System.out.println(output);
