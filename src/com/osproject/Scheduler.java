@@ -1,51 +1,117 @@
 package com.osproject;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Scheduler
 {
     Memory mem;
-    PCB[] programs;
+    ArrayList<PCB> programs;
+    ArrayList<PCB> runningQ;
+    ArrayList<PCB> completedQ;
     LinkedList<PCB> scheduledPrograms;
+    boolean isFIFO;
 
-    Scheduler(Memory diskandram, PCB[] progs)
+    Scheduler(Memory diskandram, ArrayList<PCB> rdyQ, ArrayList<PCB> runQ, ArrayList<PCB> compQ, boolean FIFO)
     {
         mem = diskandram;
-        programs = progs;
+        programs = rdyQ;
         scheduledPrograms = new LinkedList<PCB>();
+        runningQ=runQ;
+        completedQ=compQ;
+        isFIFO = FIFO;
     }
 
+    public void checkForCompletion()
+    {
+        boolean processComplete = false;
+        for (int i = 0; i < runningQ.size(); i++){
+            if(runningQ.get(i).getStatus()==4){ //If program is completed
+                //TODO: the stuff to print the metrics
+
+                //Set the program to data output, and then free the memory
+                runningQ.get(i).setStatus(5);
+                mem.claimRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).getTotalSize());
+                completedQ.add(runningQ.remove(i));
+                //Sets flag that space has opened, to schedule more.
+                processComplete=true;
+            }
+        }
+        if(processComplete)
+        {
+            schedulePrograms();
+        }
+    }
     public void schedulePrograms()
     {
-        int startIndex;
-        //Check through all programs for programs to schedule
-        for (int i=0;i<programs.length;i++)
-        {
-            startIndex=0;
-            //If the program has not started
-            if (programs[i].getStatus()==0)
-            {
-                startIndex=mem.findNextSpotInRAM(programs[i].getTotalSize());
-                //If there is an available slot claim the ram
-                if(startIndex!=-1)
-                {
-                   mem.claimRAM(startIndex,programs[i].getTotalSize()); //Claim the space
-                   mem.copyIntoRAM(startIndex,programs[i].memInfo.startAddress,programs[i].getTotalSize()); //Fill in the data
-                   programs[i].setStatus(1); //Set status to ready
-                   programs[i].memInfo.startAddress=startIndex; //Set the program counter to point to new space in RAM
-                   scheduledPrograms.add(programs[i]);
-                }
-                if(startIndex==-1) //Not enough space in RAM
-                {
-                    break; //terminate loop and wait for processes to finish;
+        int startIndex=0;
+        //Check through all programs for programs to schedule FIFO Mode
+        if(isFIFO) {
+            for (int i = 0; i < programs.size(); i++) {
+                //If the program has not started
+                if (programs.get(i).getStatus() == 0) {
+                    startIndex = mem.findNextSpotInRAM(programs.get(i).getTotalSize());
+                    //If there is an available slot claim the ram
+                    if (startIndex != -1) {
+                        mem.claimRAM(startIndex, programs.get(i).getTotalSize()); //Claim the space
+                        mem.copyIntoRAM(startIndex, programs.get(i).memInfo.startAddress, programs.get(i).getTotalSize()); //Fill in the data
+                        programs.get(i).setStatus(1); //Set status to ready
+                        programs.get(i).setProgramCounter(startIndex);
+                        programs.get(i).memInfo.startAddress=startIndex;//Set the program counter to point to new space in RAM
+                        scheduledPrograms.add(programs.get(i));
+                        programs.remove(i); //Remove the program from the ready queue
+                    }
+                    if (startIndex == -1) //Not enough space in RAM
+                    {
+                        break; //terminate loop and wait for processes to finish;
+                    }
                 }
             }
         }
+        //For Priority Mode
+        else{
+            //While you have not hit the full ram condition
+            while (startIndex!=-1) {
+                int highestPriority = -1;
+                int programIndex = -1;
+                //Cycle through all programs and find the first Highest priority loaded program
+                for (int i = 0; i < programs.size(); i++) {
+                    //If the program is waiting
+                    if (programs.get(i).getStatus() == 0) {
+                        //If the program has the highest priority of each checked program
+                        if (programs.get(i).getPriority() > highestPriority) {
+                            highestPriority = programs.get(i).getPriority();
+                            programIndex = i;
+                        }
+                    }
+                }
+              //Check available space in RAM
+              startIndex= mem.findNextSpotInRAM(programs.get(programIndex).getTotalSize());
+              if (startIndex != -1) { //Space is available
+                    mem.claimRAM(startIndex, programs.get(programIndex).getTotalSize()); //Claim the space
+                    mem.copyIntoRAM(startIndex, programs.get(programIndex).memInfo.startAddress, programs.get(programIndex).getTotalSize()); //Fill in the data
+                    programs.get(programIndex).setStatus(1); //Set status to ready
+                    programs.get(programIndex).setProgramCounter(startIndex);
+                    programs.get(programIndex).memInfo.startAddress=startIndex;//Set the program counter to point to new space in RAM
+                    scheduledPrograms.add(programs.get(programIndex));
+                    programs.remove(programIndex); //Removes from readyqueue
+              }
+              if (startIndex == -1){ //Not enough space in RAM
+                  break; //terminate loop and wait for processes to finish;
+              }
+            }
+        }
     }
+
+    //Set queue operations
+    public void setFIFOMode(){isFIFO=true;}
+    public void setPriorityMode(){isFIFO=false;}
+
 
     public PCB getNextReadyJob()
     {
         return scheduledPrograms.remove();
     }
+    public int getScheduleSize(){return scheduledPrograms.size();}
 }
 

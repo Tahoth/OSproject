@@ -1,3 +1,4 @@
+package com.osproject;
 public class Effective_Address{
   public int get_eff_add(int address){
     int real = address/4;

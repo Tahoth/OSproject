@@ -65,8 +65,19 @@ public class Memory {
     //Mark size ram slots as occupied from the start index
     public void claimRAM(int start, int size)
     {
-        for (int i=start;i<start+size;i++) {
+        for (int i=start;i<start+size;i++)
+        {
             usedram[i]=true;
+        }
+    }
+
+    //Reset a space in RAM when program is finished
+    public void clearRAM(int start, int size)
+    {
+        for (int i=start;i<start+size;i++)
+        {
+            usedram[i]=false;
+            memory[i]=0;
         }
     }
     //Copys a size of disc into ram
