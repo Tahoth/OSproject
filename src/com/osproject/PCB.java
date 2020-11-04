@@ -3,6 +3,7 @@ package com.osproject;
 class MemInfo {
     public int startAddress;
     public int endAddress;
+    public int ramStart;
 }
 
 public class PCB {
@@ -14,6 +15,7 @@ public class PCB {
     private int tempSize;
     private int status; // 0 loaded, 1 waiting (in ram), 2 running, 4 complete, 5 dataoutput
     private int programCounter;
+    private int[] registers;
     public MemInfo memInfo = new MemInfo();
     public Metrics mets = new Metrics();
 
@@ -26,6 +28,16 @@ public class PCB {
         programCounter=startAddress;
         status = 0;
         mets.setWaitStart();
+    }
+
+    public int[] getRegisters() {
+        return registers;
+    }
+
+    public void setRegisters(int[] registers) {
+        for (int i = 0; i < registers.length; i++) {
+            this.registers[i] = registers[i];
+        }
     }
 
     public int getEndAddress() {

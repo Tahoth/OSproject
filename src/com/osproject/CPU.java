@@ -17,6 +17,13 @@ public class CPU {
 
     public void assignProcess(PCB p) {
         process = p;
+        pc = process.memInfo.ramStart + process.getProgramCounter();
+
+        int[] regs = process.getRegisters();
+
+        for (int i = 0; i < regs.length; i++) {
+            registers[i] = regs[i];
+        }
     }
 
     private int getEffectiveAddress(int address) {
@@ -237,6 +244,7 @@ public class CPU {
                 throw new Error("Unknown opcode!");
         }
         printRegs();
+        updatePCB();
     }
 
     private void printRegs() {
@@ -246,7 +254,8 @@ public class CPU {
         System.out.println();
     }
 
-    public void setPc(int val) {
-        pc = val;
+    private void updatePCB() {
+        process.setProgramCounter(pc - process.memInfo.ramStart);
+        process.setRegisters(registers);
     }
 }

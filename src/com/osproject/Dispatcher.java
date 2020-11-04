@@ -17,7 +17,7 @@ public class Dispatcher {
         if(nextProc!=null)
         {
             //Assign the process into the CPUs registers
-            processor.setToRun(nextProc);
+            processor.assignProcess(nextProc);
         }
     }
 
