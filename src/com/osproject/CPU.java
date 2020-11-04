@@ -1,5 +1,6 @@
 package com.osproject;
 import javax.lang.model.util.ElementScanner6;
+import java.lang.Math;
 
 public class CPU {
     String fetch(int programIndex) {
@@ -94,11 +95,19 @@ public class CPU {
 		cachePageCopy[i] = cachePageCopy[i];
 	}
 
+static int getBits(int value, int start, int length)
+   {
+        int temp = value >>> (32-length-(start-1));
+        temp = temp%(int)(Math.pow(2,length+1));
+        return temp;
+    }
+
 
    void decodeExecute()
    {
 	   pageFault = false;
 	   temp = stat.procPunchIn();
+	   int[] instruction = new int[3];
 	   int nextInstruction = PCB2.programCounter();
 	   int currentPage = getPage(nextInstruction);
 	   String instruct = "";
@@ -106,9 +115,45 @@ public class CPU {
 	   boolean inCache = checkCache(currentPage);
 	   if (inCache){
 		   instruct = fetch(nextInstruction);
-		   String binary = 0;
-		   instructionType = type;
-		   opcode = operation;
+		   String binary = "";
+		   String operation = binary;
+		   opcode = op;
+		   if (type == 0)
+		   {
+			  //arithmetic
+			  //6 bits = opcode 
+			  //4bits = s-reg 4 bits = s-reg
+			  //4 bits = d-reg
+			  //12 bits = not used 0000
+			   instruction[0] = getBits(8, 4, 32);
+			   instruction[1] = getBits(12, 4, 32);
+			   instruction[2] = getBits(16, 4, 32);
+		   }
+		   else if (type == 1)
+		   {
+			   //conditional and immediate 
+			   instruction[0] = getBits(8, 4, 32);
+			   instruction[1] = getBits(12, 4, 32);
+			   instruction[2] = getBits(16, 16, 32);
+		   }
+		   else if (type  == 2)
+		   {
+			//unconditional 24 bits = address
+			   instruction[0] = getBits(8, 24, 32);
+		   }
+		   else if (type == 3)
+		   {
+			   //I/O 2 bits = indicator 
+			   //6 bits = opcode 
+			   //4 bits = reg 4 bits = reg 
+			   //16 bits = address 
+			   instruction[0] = getBits(8, 4, 32);
+			   instruction[1] = getBits(8, 4, 32);
+			   instruction[2] = getBits(8, 4, 32);
+		   }
+		   else {
+			   System.out.println("Incorrect binary string");
+		   }
 		   execute();
 	   }
 	   stat.incCpuCycles(PCB2.getProcessID());
@@ -122,8 +167,6 @@ public class CPU {
 	   }
 	   
    }
-
-
 
 
 
