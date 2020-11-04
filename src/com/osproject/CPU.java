@@ -1,4 +1,5 @@
 import javax.lang.model.util.ElementScanner6;
+import java.lang.Math;
 
 public class CPU {
     String fetch(int programIndex) {
