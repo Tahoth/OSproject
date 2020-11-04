@@ -25,6 +25,7 @@ public class Dispatcher {
                 runningQ.add(nextProc);
                 //Assign the process into the CPUs and flag it to start
                 processor.assignProcess(nextProc);
+                processor.setPc(nextProc.getProgramCounter());
                 processor.start();
             }
         }
