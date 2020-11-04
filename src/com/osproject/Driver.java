@@ -1,6 +1,7 @@
 package com.osproject;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Driver {
 
@@ -16,7 +17,7 @@ public class Driver {
         loader.load("datafile.txt", readyQ);
 
         Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, true);
-        Dispatcher dispatcher = new Dispatcher(cpu, readyQ, scheduler);
+        Dispatcher dispatcher = new Dispatcher(cpu, runningQ, scheduler);
 
         scheduler.schedulePrograms();
 
@@ -27,8 +28,15 @@ public class Driver {
          *      cpu.execute();
          */
 
-        dispatcher.dispatch();
-        cpu.execute();
+        Scanner in = new Scanner(System.in);
+        char c;
+        do {
+            scheduler.checkForCompletion();
+            dispatcher.dispatch();
+            cpu.execute();
+
+            c = in.nextLine().charAt(0);
+        } while (c != 'n');
 
 
     }

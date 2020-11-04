@@ -89,6 +89,7 @@ public class CPU {
     }
 
     public void execute() {
+        System.out.println("Current PID: " + process.getPid());
         decode();
         pc++;
         switch (opcode) {
