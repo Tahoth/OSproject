@@ -15,7 +15,7 @@ public class PCB {
     private int tempSize;
     private int status; // 0 loaded, 1 waiting (in ram), 2 running, 4 complete, 5 dataoutput
     private int programCounter;
-    private int[] registers;
+    private int[] registers = new int[16];
     public MemInfo memInfo = new MemInfo();
     public Metrics mets = new Metrics();
 
