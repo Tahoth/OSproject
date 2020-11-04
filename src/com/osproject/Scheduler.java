@@ -113,7 +113,10 @@ public class Scheduler
 
     public PCB getNextReadyJob()
     {
-        return scheduledPrograms.remove();
+        if (scheduledPrograms.size()>0) {
+            return scheduledPrograms.remove();
+        }
+        return null;
     }
     public int getScheduleSize(){return scheduledPrograms.size();}
 }
