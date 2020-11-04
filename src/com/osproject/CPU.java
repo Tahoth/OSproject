@@ -7,12 +7,14 @@ public class CPU {
     private int[] registers;
     private int[] args;
     private PCB process;
+    private boolean running;
 
     public CPU(Memory memory) {
         this.memory = memory;
         this.pc = 0;
         this.registers = new int[16];
         this.args = new int[3];
+        running=false;
     }
 
     public void assignProcess(PCB p) {
@@ -258,5 +260,19 @@ public class CPU {
     private void updatePCB() {
         process.setProgramCounter(pc - process.memInfo.ramStart);
         process.setRegisters(registers);
+    }
+
+    public boolean isRunning()
+    {
+        return running;
+    }
+
+    public void start()
+    {
+        running=true;
+    }
+
+    public void setPc(int val) {
+        pc = val;
     }
 }
