@@ -41,6 +41,7 @@ public class Driver {
         do {
             scheduler.checkForCompletion();
             dispatcher.dispatch();
+            cpu.execute();
 //            c = in.nextLine().charAt(0);
 //        } while (c != 'n');
         } while (completedQ.size() != 30);
