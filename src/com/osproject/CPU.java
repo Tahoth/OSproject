@@ -1,6 +1,6 @@
 package com.osproject;
 
-public class CPU {
+public class CPU implements Runnable {
     private Memory memory;
     private int pc;
     private int opcode;
@@ -278,5 +278,10 @@ public class CPU {
 
     public void setPc(int val) {
         pc = val;
+    }
+
+    @Override
+    public void run() {
+        execute();
     }
 }

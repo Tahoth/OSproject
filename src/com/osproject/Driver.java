@@ -19,8 +19,14 @@ public class Driver {
         Memory memory = new Memory();
         Loader loader = new Loader(memory);
         ArrayList<CPU> CPUlist= new ArrayList<>();
-        CPU cpu = new CPU(memory);
-        CPUlist.add(cpu);
+        ArrayList<Thread> threads = new ArrayList<>();
+
+        for (int i = 0; i < 1; i++) {
+            CPU cpu = new CPU(memory);
+            CPUlist.add(cpu);
+            Thread t = new Thread(cpu);
+            threads.add(t);
+        }
 
         loader.load("datafile.txt", readyQ);
 
@@ -41,6 +47,9 @@ public class Driver {
         do {
             scheduler.checkForCompletion();
             dispatcher.dispatch();
+            for (Thread t: threads) {
+                t.run();
+            }
 //            c = in.nextLine().charAt(0);
 //        } while (c != 'n');
         } while (completedQ.size() != 30);
