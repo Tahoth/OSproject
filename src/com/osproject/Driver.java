@@ -30,7 +30,7 @@ public class Driver {
 
         loader.load("datafile.txt", readyQ);
 
-        Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, true);
+        Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, false);
         Dispatcher dispatcher = new Dispatcher(CPUlist, runningQ, scheduler);
 
         scheduler.schedulePrograms();
@@ -54,13 +54,19 @@ public class Driver {
 //        } while (c != 'n');
         } while (completedQ.size() != 30);
 
-        System.out.println("Process Running Waiting");
+        long runningTotal = 0;
+        long waitingTotal = 0;
+        System.out.println("Process Running Waiting     I/O");
         for (int i = 0; i < completedQ.size(); i++) {
             PCB b = completedQ.get(i);
-            String line = String.format("%7d %7d %7d", b.getPid(), (b.mets.jobFinish - b.mets.jobStart),
-                    (b.mets.jobStart - b.mets.waitStart));
+            long runningTime = b.mets.jobFinish - b.mets.jobStart;
+            long waitingTime = b.mets.jobStart - b.mets.waitStart;
+            String line = String.format("%7d %7d %7d %7d", b.getPid(), runningTime, waitingTime, b.mets.inouts);
             System.out.println(line);
+            runningTotal += runningTime;
+            waitingTotal += waitingTime;
         }
+        System.out.format("Average %7d %7d\n", runningTotal / 30, waitingTotal / 30);
 
         try {
             generateCoreDump(completedQ, memory);

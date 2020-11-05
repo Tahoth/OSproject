@@ -24,6 +24,8 @@ public class Scheduler
 
     public void checkForCompletion()
     {
+        //Used to determine the Average available space in RAM
+       // System.out.println(mem.availableRAM()/10.240+"%");
         boolean processComplete = false;
         for (int i = 0; i < runningQ.size(); i++){
             if(runningQ.get(i).getStatus()==4){ //If program is completed

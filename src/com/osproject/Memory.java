@@ -4,11 +4,13 @@ public class Memory {
     private int[] disk;
     private int[] memory;
     private boolean[] usedram;
+    private int available;
 
     public Memory() {
         disk = new int[2048];
         memory = new int[1024];
         usedram = new boolean[1024];
+        available = 1024;
     }
 
     public void storeDisk(int index, int data) {
@@ -79,6 +81,7 @@ public class Memory {
             usedram[i]=false;
             //memory[i]=0;
         }
+        available+=size;
     }
     //Copys a size of disc into ram
     public void copyIntoRAM(int ramStart, int diskStart, int size)
@@ -88,6 +91,7 @@ public class Memory {
         {
             memory[ramStart+i]=disk[diskStart+i];
         }
+        available-=size;
     }
     //Copys a size of ram into disc
     public void copyFromRAM(int ramStart, int diskStart, int size)
@@ -98,5 +102,8 @@ public class Memory {
             disk[diskStart+i]=memory[ramStart+i];
         }
     }
-
+    public int availableRAM()
+    {
+        return available;
+    }
 }

@@ -8,6 +8,7 @@ public class CPU implements Runnable {
     private int[] args;
     private PCB process;
     private boolean running;
+    private boolean isIOop;
 
     public CPU(Memory memory) {
         this.memory = memory;
@@ -91,6 +92,7 @@ public class CPU implements Runnable {
     public void execute() {
 //        System.out.println("Current PID: " + process.getPid());
 //        System.out.println("It's priority: " + process.getPriority());
+        isIOop = false;
         decode();
         pc++;
         switch (opcode) {
@@ -101,6 +103,7 @@ public class CPU implements Runnable {
                 } else {
                     registers[args[0]] = memory.retrieveRam(getEffectiveAddress(registers[args[1]]));
                 }
+                isIOop = true;
                 break;
             case 0x1:
                 // WR: Write content of accumulator into O/P buffer.
@@ -109,6 +112,7 @@ public class CPU implements Runnable {
                 } else {
                     memory.storeRam(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
                 }
+                isIOop = true;
                 break;
             case 0x2:
                 // ST: Store content of a register into an address.
@@ -264,6 +268,9 @@ public class CPU implements Runnable {
     private void updatePCB() {
         process.setProgramCounter(pc - process.memInfo.ramStart);
         process.setRegisters(registers);
+        if (isIOop) {
+            process.mets.inouts++;
+        }
     }
 
     public boolean isRunning()
