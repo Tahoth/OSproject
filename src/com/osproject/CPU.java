@@ -49,6 +49,14 @@ public class CPU implements Runnable {
         }
     }
 
+    private void copyCacheToRam() {
+        process.memInfo.ramToUpdate.forEach((key, val) -> {
+            int addr = process.memInfo.startAddress + key;
+            int data = retrieveCache(key);
+            memory.storeRam(addr, data);
+        });
+    }
+
     private int getEffectiveAddress(int address) {
         address = address / 4;
         return address;
@@ -129,8 +137,10 @@ public class CPU implements Runnable {
                 // WR: Write content of accumulator into O/P buffer.
                 if (args[1] == 0) {
                     storeCache(getEffectiveAddress(args[2]), registers[args[0]]);
+                    process.memInfo.ramToUpdate.put(getEffectiveAddress(args[2]), registers[args[0]]);
                 } else {
                     storeCache(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                    process.memInfo.ramToUpdate.put(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
                 }
                 isIOop = true;
                 break;
@@ -138,8 +148,10 @@ public class CPU implements Runnable {
                 // ST: Store content of a register into an address.
                 if (args[1] == 0) {
                     storeCache(getEffectiveAddress(registers[args[0]] + args[2]), registers[args[1]]);
+                    process.memInfo.ramToUpdate.put(getEffectiveAddress(registers[args[0]] + args[2]), registers[args[1]]);
                 } else {
                     storeCache(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                    process.memInfo.ramToUpdate.put(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
                 }
                 break;
             case 0x3:
@@ -220,6 +232,7 @@ public class CPU implements Runnable {
                 process.setStatus(4);
                 process.mets.setJobFinish();
                 running=false;
+                copyCacheToRam();
                 break;
             case 0x13:
                 // NOP: Does nothing, moves to next instruction.

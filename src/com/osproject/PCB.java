@@ -1,10 +1,13 @@
 package com.osproject;
 
+import java.util.HashMap;
+
 class MemInfo {
     public int startAddress;
     public int startOnDisk;
     public int endAddress;
     public int ramStart;
+    public HashMap<Integer, Integer> ramToUpdate = new HashMap<>();
 }
 
 public class PCB {
