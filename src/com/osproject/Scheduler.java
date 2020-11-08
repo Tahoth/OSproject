@@ -36,6 +36,7 @@ public class Scheduler
                 mem.copyFromRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).memInfo.startOnDisk,runningQ.get(i).getTotalSize());
                 mem.clearRAM(runningQ.get(i).memInfo.startAddress,runningQ.get(i).getTotalSize());
                 completedQ.add(runningQ.remove(i));
+                i--;
                 //Sets flag that space has opened, to schedule more.
                 processComplete=true;
             }
@@ -99,7 +100,6 @@ public class Scheduler
                     mem.claimRAM(startIndex, programs.get(programIndex).getTotalSize()); //Claim the space
                     mem.copyIntoRAM(startIndex, programs.get(programIndex).memInfo.startAddress, programs.get(programIndex).getTotalSize()); //Fill in the data
                     programs.get(programIndex).setStatus(1); //Set status to ready
-                    programs.get(programIndex).setProgramCounter(startIndex);
                     programs.get(programIndex).memInfo.startAddress=startIndex;//Set the program counter to point to new space in RAM
                     scheduledPrograms.add(programs.get(programIndex));
                     programs.remove(programIndex); //Removes from readyqueue
