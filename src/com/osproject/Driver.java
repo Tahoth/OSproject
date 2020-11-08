@@ -8,10 +8,21 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Driver {
 
     public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Not enough args.");
+            System.exit(1);
+        }
+
+        int numOfCpus = Integer.parseInt(args[0], 10);
+        boolean fifo = Boolean.parseBoolean(args[1]);
+
+        System.out.format("Running simulation with %d CPU(s).\n", numOfCpus);
 
         ArrayList<PCB> readyQ = new ArrayList<>();
         ArrayList<PCB> completedQ = new ArrayList<>();
@@ -20,8 +31,9 @@ public class Driver {
         Loader loader = new Loader(memory);
         ArrayList<CPU> CPUlist= new ArrayList<>();
         ArrayList<Thread> threads = new ArrayList<>();
+        ExecutorService pool = Executors.newFixedThreadPool(numOfCpus);
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < numOfCpus; i++) {
             CPU cpu = new CPU(memory);
             CPUlist.add(cpu);
             Thread t = new Thread(cpu);
@@ -30,7 +42,7 @@ public class Driver {
 
         loader.load("datafile.txt", readyQ);
 
-        Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, false);
+        Scheduler scheduler = new Scheduler(memory, readyQ, runningQ, completedQ, fifo);
         Dispatcher dispatcher = new Dispatcher(CPUlist, runningQ, scheduler);
 
         scheduler.schedulePrograms();
@@ -47,13 +59,20 @@ public class Driver {
         do {
             scheduler.checkForCompletion();
             dispatcher.dispatch();
-            for (Thread t: threads) {
-                t.run();
-            }
 //            c = in.nextLine().charAt(0);
+            for (CPU p: CPUlist) {
+                p.execute();
+//                if (completedQ.size() == 30) {
+//                    pool.shutdown();
+//                    break;
+//                } else {
+//                    pool.execute(p);
+//                }
+            }
 //        } while (c != 'n');
         } while (completedQ.size() != 30);
 
+//        pool.shutdown();
         long runningTotal = 0;
         long waitingTotal = 0;
         System.out.println("Process Running Waiting     I/O");
