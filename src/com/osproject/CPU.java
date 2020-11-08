@@ -120,6 +120,9 @@ public class CPU implements Runnable {
     public void execute() {
 //        System.out.println("Current PID: " + process.getPid());
 //        System.out.println("It's priority: " + process.getPriority());
+        if (!running) {
+            return;
+        }
         isIOop = false;
         decode();
         pc++;
