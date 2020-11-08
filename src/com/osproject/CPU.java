@@ -30,7 +30,7 @@ public class CPU implements Runnable {
             registers[i] = regs[i];
         }
 
-        for (int i = 0; i < cache.length; i++) {
+        for (int i = 0; i < process.getTotalSize(); i++) {
             storeCache(i, memory.retrieveRam(i + process.memInfo.startAddress));
         }
     }
