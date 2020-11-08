@@ -27,7 +27,7 @@ public class PCB {
         this.priority = priority;
         this.memInfo.startAddress = startAddress;
         this.memInfo.startOnDisk = startAddress;
-        programCounter=startAddress;
+//        programCounter=startAddress;
         status = 0;
         mets.setWaitStart();
     }

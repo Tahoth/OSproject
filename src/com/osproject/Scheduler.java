@@ -60,7 +60,6 @@ public class Scheduler
                         mem.claimRAM(startIndex, programs.get(i).getTotalSize()); //Claim the space
                         mem.copyIntoRAM(startIndex, programs.get(i).memInfo.startAddress, programs.get(i).getTotalSize()); //Fill in the data
                         programs.get(i).setStatus(1); //Set status to ready
-                        programs.get(i).setProgramCounter(startIndex);
                         programs.get(i).memInfo.startAddress=startIndex;//Set the program counter to point to new space in RAM
                         scheduledPrograms.add(programs.get(i));
                         programs.remove(i); //Remove the program from the ready queue

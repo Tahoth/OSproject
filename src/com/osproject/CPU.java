@@ -9,6 +9,7 @@ public class CPU implements Runnable {
     private PCB process;
     private boolean running;
     private boolean isIOop;
+    private int[] cache;
 
     public CPU(Memory memory) {
         this.memory = memory;
@@ -16,26 +17,45 @@ public class CPU implements Runnable {
         this.registers = new int[16];
         this.args = new int[3];
         running=false;
+        cache = new int[72]; // Largest job size.
     }
 
     public void assignProcess(PCB p) {
         process = p;
-        pc = process.memInfo.ramStart + process.getProgramCounter();
+        pc = process.getProgramCounter();
 
         int[] regs = process.getRegisters();
 
         for (int i = 0; i < regs.length; i++) {
             registers[i] = regs[i];
         }
+
+        for (int i = 0; i < cache.length; i++) {
+            storeCache(i, memory.retrieveRam(i + process.memInfo.startAddress));
+        }
+    }
+
+    private int retrieveCache(int index) {
+        if (index > -1 && index < cache.length) {
+            return cache[index];
+        } else {
+            return -1;
+        }
+    }
+
+    private void storeCache(int index, int data) {
+        if (index > -1 && index < cache.length) {
+            cache[index] = data;
+        }
     }
 
     private int getEffectiveAddress(int address) {
         address = address / 4;
-        return process.memInfo.startAddress + address;
+        return address;
     }
 
     private int fetch() {
-        return memory.retrieveRam(pc);
+        return retrieveCache(pc);
     }
 
     private void decode() {
@@ -99,32 +119,32 @@ public class CPU implements Runnable {
             case 0x0:
                 // RD: Read content of I/P buffer into an accumulator or register.
                 if (args[1] == 0) {
-                    registers[args[0]] = memory.retrieveRam(getEffectiveAddress(args[2]));
+                    registers[args[0]] = retrieveCache(getEffectiveAddress(args[2]));
                 } else {
-                    registers[args[0]] = memory.retrieveRam(getEffectiveAddress(registers[args[1]]));
+                    registers[args[0]] = retrieveCache(getEffectiveAddress(registers[args[1]]));
                 }
                 isIOop = true;
                 break;
             case 0x1:
                 // WR: Write content of accumulator into O/P buffer.
                 if (args[1] == 0) {
-                    memory.storeRam(getEffectiveAddress(args[2]), registers[args[0]]);
+                    storeCache(getEffectiveAddress(args[2]), registers[args[0]]);
                 } else {
-                    memory.storeRam(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                    storeCache(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
                 }
                 isIOop = true;
                 break;
             case 0x2:
                 // ST: Store content of a register into an address.
                 if (args[1] == 0) {
-                    memory.storeRam(getEffectiveAddress(registers[args[0]] + args[2]), registers[args[1]]);
+                    storeCache(getEffectiveAddress(registers[args[0]] + args[2]), registers[args[1]]);
                 } else {
-                    memory.storeRam(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
+                    storeCache(getEffectiveAddress(registers[args[1]]), registers[args[0]]);
                 }
                 break;
             case 0x3:
                 // LW: Load content of address into register.
-                registers[args[1]] = memory.retrieveRam(getEffectiveAddress(registers[args[0]] + args[2]));
+                registers[args[1]] = retrieveCache(getEffectiveAddress(registers[args[0]] + args[2]));
                 break;
             case 0x4:
                 // MOV: Transfer content of one register into another.
@@ -266,7 +286,7 @@ public class CPU implements Runnable {
     }
 
     private void updatePCB() {
-        process.setProgramCounter(pc - process.memInfo.ramStart);
+        process.setProgramCounter(pc);
         process.setRegisters(registers);
         if (isIOop) {
             process.mets.inouts++;
